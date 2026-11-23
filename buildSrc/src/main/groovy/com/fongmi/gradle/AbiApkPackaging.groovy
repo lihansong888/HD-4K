@@ -46,6 +46,8 @@ class AbiApkPackaging {
     private static void configureNativeLibraries(Project project, def variant, List<String> abis) {
         variant.packaging.jniLibs.excludes.addAll((THUNDER_LIBRARIES + MPV_LIBRARIES + [RUNTIME_PROFILES.nodejs.library, RUNTIME_PROFILES.quickjs.library]).collect { "**/${it}".toString() })
         variant.packaging.jniLibs.keepDebugSymbols.add('**/libc++_shared.so')
+        // 仅校验用：mpv/ffmpeg 原生库并不打进主 APK（见上面的 excludes），缺这两个文件时跳过校验即可
+        if (!project.layout.projectDirectory.file('libs/lib-mpvplayer-release.aar').asFile.exists() || !project.layout.projectDirectory.file('libs/lib-decoder-ffmpeg-release.aar').asFile.exists()) return
         def validation = project.tasks.register("verify${variant.name.capitalize()}MpvNative", VerifyMpvNativeTask) { task ->
             task.mpvArchive.set(project.layout.projectDirectory.file('libs/lib-mpvplayer-release.aar'))
             task.ffmpegArchive.set(project.layout.projectDirectory.file('libs/lib-decoder-ffmpeg-release.aar'))
