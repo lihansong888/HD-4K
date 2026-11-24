@@ -36,6 +36,7 @@ public class Action implements Process {
     @Override
     public NanoHTTPD.Response doResponse(NanoHTTPD.IHTTPSession session, String path, Map<String, String> files) {
         Map<String, String> params = session.getParms();
+        if (!Nano.isLocal(session) && "api".equals(params.get("do"))) return Nano.error(NanoHTTPD.Response.Status.FORBIDDEN, "Forbidden");
         switch (Objects.requireNonNullElse(params.get("do"), "")) {
             case "search":
                 onSearch(params);

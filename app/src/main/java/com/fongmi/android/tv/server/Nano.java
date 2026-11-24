@@ -39,6 +39,12 @@ public class Nano extends NanoHTTPD {
         process.add(new Local());
     }
 
+    /** 请求是否来自本机。局域网里的其他设备只允许推送、投屏、同步、搜索，不能改数据源、传文件。 */
+    public static boolean isLocal(IHTTPSession session) {
+        String ip = session.getRemoteIpAddress();
+        return ip == null || ip.startsWith("127.") || ip.equals("0:0:0:0:0:0:0:1") || ip.equals("::1");
+    }
+
     public static Response success() {
         return success("OK");
     }

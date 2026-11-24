@@ -200,8 +200,13 @@ public class Site implements Parcelable {
         this.activated = item.equals(this);
     }
 
+    /** 会员专享站点：后台下发的空壳，只能点开提示开通 */
+    public boolean isLocked() {
+        return !android.text.TextUtils.isEmpty(api) && api.startsWith("locked://");
+    }
+
     public boolean isSearchable() {
-        return getSearchable() == 1;
+        return !isLocked() && getSearchable() == 1;
     }
 
     public Site setSearchable(boolean searchable) {

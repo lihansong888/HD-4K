@@ -26,6 +26,7 @@ public class SiteDialog implements SiteAdapter.OnClickListener, CompoundButton.O
     private RecyclerView.ItemDecoration decoration;
     private final DialogSiteBinding binding;
     private final SiteCallback callback;
+    private final Activity activity;
     private final SiteAdapter adapter;
     private final AlertDialog dialog;
     private int type;
@@ -37,6 +38,7 @@ public class SiteDialog implements SiteAdapter.OnClickListener, CompoundButton.O
     public SiteDialog(Activity activity) {
         this.adapter = new SiteAdapter(this);
         this.callback = (SiteCallback) activity;
+        this.activity = activity;
         this.binding = DialogSiteBinding.inflate(LayoutInflater.from(activity));
         this.dialog = new MaterialAlertDialogBuilder(activity).setView(binding.getRoot()).create();
     }
@@ -133,6 +135,10 @@ public class SiteDialog implements SiteAdapter.OnClickListener, CompoundButton.O
 
     @Override
     public void onItemClick(Site item) {
+        if (item.isLocked()) {
+            com.fongmi.android.tv.auth.PurchaseDialog.showLocked(activity, null);
+            return;
+        }
         callback.setSite(item);
         dialog.dismiss();
     }

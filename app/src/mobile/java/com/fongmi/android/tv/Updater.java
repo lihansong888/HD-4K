@@ -70,7 +70,7 @@ public class Updater implements Download.Callback {
     }
 
     public void start() {
-        App.execute(this::doInBackground);
+        // FusionTV：不再检查官方更新（升级由后台控制）
     }
 
     private boolean need(int code, String name) {

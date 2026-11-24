@@ -31,6 +31,7 @@ public class Local implements Process {
 
     @Override
     public NanoHTTPD.Response doResponse(NanoHTTPD.IHTTPSession session, String path, Map<String, String> files) {
+        if (!Nano.isLocal(session)) return Nano.error(NanoHTTPD.Response.Status.FORBIDDEN, "Forbidden");
         if (path.startsWith("/file")) return getFile(path);
         if (path.startsWith("/upload")) return upload(session.getParms(), files);
         if (path.startsWith("/newFolder")) return newFolder(session.getParms());

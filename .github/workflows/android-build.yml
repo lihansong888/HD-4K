@@ -48,7 +48,20 @@ jobs:
           gradle-version: '7.4.2'
 
       - name: Build
-        run: gradle :app:assembleLeanbackJavaArm64_v8aDebug --no-daemon --stacktrace
+        run: gradle :app:assembleLeanbackJavaArm64_v8aDebug :app:assembleLeanbackJavaArmeabi_v7aDebug --no-daemon --stacktrace
 
       - name: List APKs
         run: find app/build/outputs -name '*.apk' | sort
+
+      - name: Publish test release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          A64=$(find app/build/outputs -name '*Arm64_v8a*.apk' -o -name '*arm64_v8a*.apk' | head -n1)
+          A32=$(find app/build/outputs -name '*Armeabi_v7a*.apk' -o -name '*armeabi_v7a*.apk' | head -n1)
+          echo "$A64"; echo "$A32"
+          cp "$A64" fusiontv-arm64.apk
+          cp "$A32" fusiontv-v7a.apk
+          gh release delete test-latest --yes --cleanup-tag || true
+          gh release create test-latest fusiontv-arm64.apk fusiontv-v7a.apk --prerelease --title "Test build" --notes "Debug test build from ${GITHUB_SHA}" --target "${GITHUB_SHA}"
+

@@ -545,6 +545,11 @@ public class LiveActivity extends BaseActivity implements GroupPresenter.OnClick
 
     private void fetch() {
         if (mChannel == null) return;
+        if (com.fongmi.android.tv.auth.FusionApi.isLocked(mChannel.getCurrent()) || com.fongmi.android.tv.auth.FusionApi.isLocked(mChannel.getUrl())) {
+            mPlayers.stop();
+            com.fongmi.android.tv.auth.PurchaseDialog.showLocked(this, null);
+            return;
+        }
         LiveConfig.get().setKeep(mChannel);
         mViewModel.fetch(mChannel);
         showProgress();

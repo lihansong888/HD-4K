@@ -90,6 +90,15 @@ public class SettingActivity extends BaseActivity implements ConfigCallback, Sit
         mBinding.renderText.setText((render = ResUtil.getStringArray(R.array.select_render))[Setting.getRender()]);
         mBinding.qualityText.setText((quality = ResUtil.getStringArray(R.array.select_quality))[Setting.getQuality()]);
         setCacheText();
+        hideSourceEntries();
+        mBinding.player.requestFocus();
+    }
+
+    /** 只隐藏点播、直播的"配置地址"输入项及其历史；其他设置照常保留。 */
+    private void hideSourceEntries() {
+        mBinding.wallUrl.setVisibility(android.view.View.GONE);
+        android.view.View[] rows = {mBinding.vod, mBinding.live, mBinding.vodHome, mBinding.liveHome, mBinding.vodHistory, mBinding.liveHistory};
+        for (android.view.View v : rows) v.setVisibility(android.view.View.GONE);
     }
 
     private void setCacheText() {
