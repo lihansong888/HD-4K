@@ -14,15 +14,17 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - name: List releases
+      - name: Download official APK 5.9.0
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          echo "== FongMi/Release"; gh release list -R FongMi/Release --limit 15 || true
-          echo "== FongMi/TV"; gh release list -R FongMi/TV --limit 15 || true
-          echo "== assets of latest in FongMi/Release"
-          T=$(gh release list -R FongMi/Release --limit 1 --json tagName -q '.[0].tagName' || true); echo "tag=$T"
-          [ -n "$T" ] && gh release view "$T" -R FongMi/Release --json assets -q '.assets[]|"\(.name) \(.size)"' || true
-          echo "== assets of latest in FongMi/TV"
-          T2=$(gh release list -R FongMi/TV --limit 1 --json tagName -q '.[0].tagName' || true); echo "tag=$T2"
-          [ -n "$T2" ] && gh release view "$T2" -R FongMi/TV --json assets -q '.assets[]|"\(.name) \(.size)"' || true
+          gh release download 5.9.0 -R FongMi/Release -p 'leanback-arm64_v8a.apk' -O official.apk
+          ls -la official.apk
+      - name: Inspect
+        run: |
+          echo "== top-level layout"; unzip -l official.apk | awk '{print $4}' | grep -E '^(classes[0-9]*\.dex|lib/|resources\.arsc|AndroidManifest|assets/)' | sed 's#\(assets/[^/]*\)/.*#\1/#' | sort | uniq -c | head -40
+          echo "== native libs"; unzip -l official.apk | awk '{print $4}' | grep '^lib/' | head -40
+          echo "== versionName in source"; grep -rn "versionName\|VERSION_NAME" app/build.gradle | head -3
+          echo "== dex classes mentioning media3 mpvplayer / libass / danmaku"
+          mkdir x && cd x && unzip -q ../official.apk 'classes*.dex' && for d in classes*.dex; do echo $d $(strings -n 8 $d | grep -c 'androidx/media3/mpvplayer'); done
+          strings -n 8 classes*.dex | grep -E 'androidx/media3/(mpvplayer|exoplayer/libass|ui/danmaku|decoder/ffmpeg)/' | sed 's#/[^/]*;*$##' | sort -u | head -20
