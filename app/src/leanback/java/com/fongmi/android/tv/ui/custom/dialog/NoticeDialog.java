@@ -50,7 +50,10 @@ public final class NoticeDialog {
     private static void show(Activity activity, FusionApi.Popup popup) {
         boolean phone = activity.getResources().getConfiguration().smallestScreenWidthDp < 600;
         android.util.DisplayMetrics dm = activity.getResources().getDisplayMetrics();
-        boolean land = dm.widthPixels > dm.heightPixels;
+        // 统一用「图在左、文字在右」的横向版式，所有尺寸都按弹窗宽度的比例推算，手机竖屏和电视/模拟器看起来一致
+        boolean land = true;
+        float widthRatio = (phone && dm.widthPixels < dm.heightPixels) ? 0.92f : 0.62f;
+        int dialogWidth = (int) (dm.widthPixels * widthRatio);
         int ink = 0xFF222222;
 
         LinearLayout root = new LinearLayout(activity);
@@ -78,7 +81,7 @@ public final class NoticeDialog {
             ImageView image = new ImageView(activity);
             image.setAdjustViewBounds(true);
             image.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            int size = land ? (int) (dm.heightPixels * 0.30f) : (int) (dm.widthPixels * 0.34f);
+            int size = (int) (dialogWidth * 0.27f);
             LinearLayout.LayoutParams ip = new LinearLayout.LayoutParams(size, size);
             if (land) ip.rightMargin = dp(activity, 24); else ip.bottomMargin = dp(activity, 12);
             content.addView(image, ip);
@@ -122,7 +125,7 @@ public final class NoticeDialog {
         dialog.show();
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(0xFFFFFFFF));
-            dialog.getWindow().setLayout((int) (dm.widthPixels * (phone ? 0.92f : 0.62f)), WindowManager.LayoutParams.WRAP_CONTENT);
+            dialog.getWindow().setLayout(dialogWidth, WindowManager.LayoutParams.WRAP_CONTENT);
         }
         ok.requestFocus();
     }
