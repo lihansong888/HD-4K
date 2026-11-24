@@ -14,20 +14,15 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - name: List official release assets
+      - name: List releases
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release view v5.7.1 -R FongMi/Release --json assets -q '.assets[]|"\(.name) \(.size)"' | tee assets.txt
-      - name: Download leanback arm64 APK
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          NAME=$(grep -iE 'leanback.*arm64.*\.apk|arm64.*leanback.*\.apk' assets.txt | head -n1 | cut -d' ' -f1)
-          echo "picked: $NAME"
-          gh release download v5.7.1 -R FongMi/Release -p "$NAME" -O official.apk
-          ls -la official.apk
-      - name: Inspect
-        run: |
-          unzip -l official.apk | awk '{print $4}' | grep -E '^(classes[0-9]*\.dex|lib/|resources\.arsc|AndroidManifest)' | head -60
-          unzip -l official.apk | tail -1
+          echo "== FongMi/Release"; gh release list -R FongMi/Release --limit 15 || true
+          echo "== FongMi/TV"; gh release list -R FongMi/TV --limit 15 || true
+          echo "== assets of latest in FongMi/Release"
+          T=$(gh release list -R FongMi/Release --limit 1 --json tagName -q '.[0].tagName' || true); echo "tag=$T"
+          [ -n "$T" ] && gh release view "$T" -R FongMi/Release --json assets -q '.assets[]|"\(.name) \(.size)"' || true
+          echo "== assets of latest in FongMi/TV"
+          T2=$(gh release list -R FongMi/TV --limit 1 --json tagName -q '.[0].tagName' || true); echo "tag=$T2"
+          [ -n "$T2" ] && gh release view "$T2" -R FongMi/TV --json assets -q '.assets[]|"\(.name) \(.size)"' || true
