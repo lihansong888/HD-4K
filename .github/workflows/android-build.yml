@@ -1,0 +1,58 @@
+name: Android build
+
+on:
+  push:
+    branches:
+      - official-2023
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '11'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.8'
+
+      - name: Android SDK packages
+        shell: bash
+        run: |
+          set +o pipefail
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | sort -V | tail -n 1)"
+          yes | "$SDKMANAGER" --licenses || true
+          yes | "$SDKMANAGER" "platforms;android-34" "build-tools;34.0.0" "platform-tools" || true
+
+      - name: Fetch androidx/media sources to /media (the app expects them there)
+        run: |
+          sudo git clone --depth 1 --branch 1.1.1 https://github.com/androidx/media.git /media
+          ls /media | head -30
+          sudo chmod -R a+rwX /media
+
+      - name: Fixed debug signing key
+        run: |
+          mkdir -p ~/.android
+          cp keystore/fusiontv-debug.keystore ~/.android/debug.keystore || true
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '7.4.2'
+
+      - name: Build
+        run: gradle :app:assembleLeanbackJavaArm64_v8aDebug --no-daemon --stacktrace
+
+      - name: List APKs
+        run: find app/build/outputs -name '*.apk' | sort
