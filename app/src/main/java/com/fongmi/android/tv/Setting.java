@@ -142,6 +142,22 @@ public class Setting {
         Prefers.put("boot_live", boot);
     }
 
+    public static boolean isIncognito() {
+        return Prefers.getBoolean("incognito", false);
+    }
+
+    public static void putIncognito(boolean incognito) {
+        Prefers.put("incognito", incognito);
+    }
+
+    public static boolean isHomeHistory() {
+        return Prefers.getBoolean("home_history", true);
+    }
+
+    public static void putHomeHistory(boolean show) {
+        Prefers.put("home_history", show);
+    }
+
     public static boolean isInvert() {
         return Prefers.getBoolean("invert");
     }

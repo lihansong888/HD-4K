@@ -118,6 +118,7 @@ public class SettingActivity extends BaseActivity implements ConfigCallback, Sit
         mBinding.proxy.setOnClickListener(this::onProxy);
         mBinding.cache.setOnClickListener(this::onCache);
         mBinding.version.setOnClickListener(this::onVersion);
+        mBinding.custom.setOnClickListener(v -> SettingCustomActivity.start(this));
         mBinding.vodHome.setOnClickListener(this::onVodHome);
         mBinding.liveHome.setOnClickListener(this::onLiveHome);
         mBinding.vodHistory.setOnClickListener(this::onVodHistory);

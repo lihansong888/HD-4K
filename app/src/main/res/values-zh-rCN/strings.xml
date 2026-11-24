@@ -84,6 +84,9 @@
     <string name="setting_version">版本</string>
     <string name="setting_storage">权限</string>
     <string name="setting_off">关闭</string>
+    <string name="setting_custom">个性设置</string>
+    <string name="setting_incognito">无痕模式</string>
+    <string name="setting_home_history">首页显示历史记录</string>
     <string name="setting_on">开启</string>
 
     <!-- Search -->
