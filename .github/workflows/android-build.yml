@@ -53,6 +53,23 @@ jobs:
       - name: List APKs
         run: find app/build/outputs -name '*.apk' | sort
 
+      - name: Inspect APK vs official
+        continue-on-error: true
+        run: |
+          BT="$ANDROID_HOME/build-tools/34.0.0"
+          A64=$(find app/build/outputs -name '*rm64_v8a*.apk' | head -n1)
+          echo "=== OURS: $A64"
+          "$BT/aapt" dump badging "$A64" | grep -E "package:|sdkVersion|targetSdk|native-code|application-debuggable|uses-gl|compileSdk" || true
+          "$BT/aapt" dump permissions "$A64" | head -40 || true
+          "$BT/zipalign" -c -v 4 "$A64" | tail -3 || true
+          "$BT/apksigner" verify --verbose --print-certs "$A64" | head -12 || true
+          unzip -l "$A64" | grep -E "classes|resources.arsc|lib/" | head -30
+          echo "=== OFFICIAL 5.9.0"
+          curl -sL -o official.apk https://github.com/FongMi/Release/releases/download/5.9.0/leanback-arm64_v8a.apk || true
+          ls -l official.apk
+          "$BT/aapt" dump badging official.apk | grep -E "package:|sdkVersion|targetSdk|native-code|application-debuggable|compileSdk" || true
+          unzip -l official.apk | grep -E "classes|resources.arsc|lib/" | head -30
+
       - name: Publish test release
         env:
           GH_TOKEN: ${{ github.token }}
